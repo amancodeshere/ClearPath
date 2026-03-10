@@ -62,10 +62,19 @@ feat(weather): implement S3 event trigger for Lambda-Cleaner
 ### ALICE-TODO 4. Local Setup (One-Time)
 
 To ensure your environment matches the team standards, run:
-
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Install dev dependencies
+pip install -r requirements-dev.txt
 
-# Register the pre-commit hooks
-pre-commit install --hook-type pre-push --hook-type pre-commit
+# Install and activate pre-commit hooks
+pre-commit install
+
+# Symlink the custom line-limit bash hook
+sh util/setup-hooks.sh
+```
+
+After this, every `git commit` will automatically:
+- Format your code with black
+- Sort imports with isort
+- Lint with flake8
+- Reject commits over 200 lines
