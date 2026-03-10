@@ -2,7 +2,7 @@
 ```bash
 # 1. Navigate to your microservice and activate its venv
 cd weather-microservice # or alert-microservice / transport-microservice
-source venv/bin/activate
+source venv/bin/activate # or source venv/Scripts/activate for windows user
 
 # 2. (Optional) Pull the latest changes from your develop branch (Good Practice)
 git pull origin develop/X
@@ -84,9 +84,11 @@ sh util/setup.sh
 
 
 # Set up your microservice environment (Only do it for the service you are working on)
+**Windows users:** replace `source venv/bin/activate` with `source venv/Scripts/activate`
+```bash
 cd weather-microservice
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate # or source venv/Scripts/activate for windows user
 pip install -r requirements.txt
 pip install -r ../requirements-dev.txt
 deactivate
