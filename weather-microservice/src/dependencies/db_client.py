@@ -1,5 +1,5 @@
 """
-DynamoDB client initialisation and connection testing.
+DynamoDB client initialisation and connection testing. s
 """
 import os
 import boto3

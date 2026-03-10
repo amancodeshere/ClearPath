@@ -1,5 +1,5 @@
 """
-S3 client initialisation and connection testing.
+S3 client initialisation and connection testing.s
 """
 import os
 import boto3
