@@ -1,10 +1,24 @@
+## Every Time You Start Working
+```bash
+# 1. Navigate to your microservice and activate its venv
+cd weather-microservice # or alert-microservice / transport-microservice
+source venv/bin/activate # or source venv/Scripts/activate for windows user
+
+# 2. (Optional) Pull the latest changes from your develop branch (Good Practice)
+git pull origin develop/X
+
+# 3. Refresh your AWS credentials
+# Log into the learner lab portal and update your .env file with new credentials
+```
+
 ## Git & Branching Standards
 
 To maintain a clean history and enable automated deployments, we follow a strict branching and commit convention.
 
 ### 1. Branch Naming Convention
 
-All branches must follow the structure: `type/service-name/description`
+All branches must follow the structure: `type/service-name/REQ_NUMBER/description`
+- only exception to this aare the docs or chore branches
 
 | Type | Description | Example |
 | --- | --- | --- |
@@ -19,7 +33,7 @@ All branches must follow the structure: `type/service-name/description`
 * `weather`
 * `alert`
 * `transport`
-* `common` (For shared scripts or root-level changes)
+* `util` (For shared scripts or root-level changes)
 
 ---
 
@@ -27,19 +41,17 @@ All branches must follow the structure: `type/service-name/description`
 
 We follow a **Feature Branch Workflow** to ensure code quality:
 
-1. **Create a Branch:** Locally create a branch from `main`.
+1. **Create a branch** from your microservice develop branch:
 ```bash
-git checkout -b feat/weather/your-feature-name
-
+git checkout develop/weather-microservice
+git checkout -b feat/weather/req-num/your-feature-name
 ```
 
+2. **Open a Pull Request (PR):**
+   - Target your `develop/weather-microservice` branch
+   - Ensure at least **one team member** reviews and approves
+   - Evidence of comments/discussion must be visible in the PR before merging
 
-2. **Small Commits:** Adhere to the **200-line limit**. If your change is larger, break it into multiple commits.
-3. **ALICE-TODO-Local Validation:** Before pushing, `pre-commit` will automatically run formatting (`black`, `isort`) and linting (`flake8`).
-4. **Open a Pull Request (PR):**
-* Target the `main` branch.
-* Ensure at least **one team member** reviews and approves the code.
-* Evidence of comments/discussion must be visible in the PR before merging.
 
 ---
 
@@ -59,18 +71,27 @@ feat(weather): implement S3 event trigger for Lambda-Cleaner
 
 ---
 
-### ALICE-TODO 4. Local Setup (One-Time)
+## Local Setup (One-Time)
 
 To ensure your environment matches the team standards, run:
+> **Windows users:** replace `source venv/bin/activate` with `source venv/Scripts/activate`
 ```bash
-# Install dev dependencies
-pip install -r requirements-dev.txt
+# 1. Navigate to root directory
+cd ClearPath
 
-# Install and activate pre-commit hooks
+# 2. Install pre-commit globally
+pip install pre-commit
 pre-commit install
+sh util/setup.sh
 
-# Symlink the custom line-limit bash hook
-sh util/setup-hooks.sh
+# 3. Set up your microservice environment (only for the service you are working on)
+cd weather-microservice                     # or alert-microservice / transport-microservice
+python -m venv venv
+source venv/bin/activate                    # or source venv/Scripts/activate
+pip install -r requirements.txt
+pip install -r ../requirements-dev.txt
+deactivate
+cd ..
 ```
 
 After this, every `git commit` will automatically:
