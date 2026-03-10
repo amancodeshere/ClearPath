@@ -1,3 +1,16 @@
+## Every Time You Start Working
+```bash
+# 1. Navigate to your microservice and activate its venv
+cd weather-microservice # or alert-microservice / transport-microservice
+source venv/bin/activate
+
+# 2. (Optional) Pull the latest changes from your develop branch (Good Practice)
+git pull origin develop/X
+
+# 3. Refresh your AWS credentials
+# Log into the learner lab portal and update your .env file with new credentials
+```
+
 ## Git & Branching Standards
 
 To maintain a clean history and enable automated deployments, we follow a strict branching and commit convention.
@@ -59,18 +72,46 @@ feat(weather): implement S3 event trigger for Lambda-Cleaner
 
 ---
 
-### ALICE-TODO 4. Local Setup (One-Time)
+## Local Setup (One-Time)
 
 To ensure your environment matches the team standards, run:
 ```bash
-# Install dev dependencies
-pip install -r requirements-dev.txt
-
-# Install and activate pre-commit hooks
+# Install pre-commit hooks (Ensure you are in the root/ClearPath directory)
+cd ClearPath
+pip install pre-commit
 pre-commit install
+sh util/setup.sh
 
-# Symlink the custom line-limit bash hook
-sh util/setup-hooks.sh
+
+# Set up your microservice environment (Only do it for the service you are working on)
+cd weather-microservice
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install -r ../requirements-dev.txt
+deactivate
+cd ..
+
+# OR 
+
+cd transport-microservice
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install -r ../requirements-dev.txt
+deactivate
+cd ..
+
+# OR 
+
+cd alert-microservice
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install -r ../requirements-dev.txt
+deactivate
+cd ..
+
 ```
 
 After this, every `git commit` will automatically:
