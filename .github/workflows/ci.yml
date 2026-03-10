@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+    branches: 
+      - "main"
+      - "develop/weather-microservice"
+      - "develop/transport-microservice"
+      - "develop/alert-microservice"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      # 1. LINTING - run on everything to keep the whole repo clean
+      - name: Run Global Linting
+        run: |
+          black --check --line-length=79 .
+          isort --check-only --profile=black .
+          flake8 --max-line-length=79 .
+
+      # 2. UNIT TESTING 
+      - name: Run unit tests
+        run: |
+          pytest weather-microservice/tests/unit/
+          pytest alert-microservice/tests/unit/
+          pytest transport-microservice/tests/unit/
+
+      # 2. INTEGRATION TESTING 
+      - name: Run integration tests
+        run: |
+          pytest weather-microservice/tests/integration/
+          pytest alert-microservice/tests/integration/
+          pytest transport-microservice/tests/integration/
+        continue-on-error: true
+
+      # COVERAGE TESTING
+      - name: Run coverage
+        run: |
+          coverage run -m pytest weather-microservice/tests/ alert-microservice/tests/ transport-microservice/tests/
+          coverage report
+          coverage html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/

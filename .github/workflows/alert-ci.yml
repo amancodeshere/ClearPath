@@ -1,0 +1,56 @@
+name: Alert CI
+
+on:
+  pull_request:
+    branches: 
+      - "main"
+      - "develop/alert-microservice"
+    paths:
+      - "alert-microservice/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      # 1. LINTING
+      - name: Run Global Linting
+        run: |
+          black --check --line-length=79 alert-microservice/
+          isort --check-only --profile=black alert-microservice/
+          flake8 --max-line-length=79 alert-microservice/
+
+      # 2. UNIT TESTING 
+      - name: Run unit tests
+        run: pytest alert-microservice/tests/unit/
+
+      # 2. INTEGRATION TESTING 
+      - name: Run integration tests
+        run: pytest alert-microservice/tests/integration/
+        continue-on-error: true
+
+      # COVERAGE TESTING
+      - name: Run coverage
+        run: |
+          coverage run -m pytest alert-microservice/tests/
+          coverage report
+          coverage html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
