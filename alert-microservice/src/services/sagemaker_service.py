@@ -31,12 +31,11 @@ class SageMakerClassificationService:
     3. invoking the SageMaker endpoint in batches
     4. aggregating the per-tweet predictions into one final daily status
 
-    Expected endpoint input:
-        {"texts": ["tweet one", "tweet two"]}
+    Expected endpoint input -> {"texts": ["tweet one", "tweet two"]} (json)
 
-    Expected endpoint output:
-        {"predictions": ["cancelled", "delayed"]}
+    Expected endpoint output -> {"predictions": ["cancelled", "delayed"]} (json)
     """
+
 
     def __init__(
         self,
@@ -45,15 +44,15 @@ class SageMakerClassificationService:
         batch_size: int = None,
     ) -> None:
         """
-        @:param endpoint_name [str]
+        :param: endpoint_name [str]
             -> The SageMaker endpoint name. If not provided, reads from the
                SAGEMAKER_ENDPOINT_NAME environment variable.
 
-        @:param region_name [str]
+        :param: region_name [str]
             AWS region for the SageMaker runtime client. If not provided,
             reads from AWS_REGION and defaults to ap-southeast-2.
 
-        @:param batch_size [int]
+        :param: batch_size [int]
             Maximum number of tweets sent to SageMaker in one invocation.
             If not provided, reads from SAGEMAKER_BATCH_SIZE and defaults to 32.
         """
@@ -76,6 +75,7 @@ class SageMakerClassificationService:
             region_name=self.region_name,
         )
 
+
     @staticmethod
     def split_daily_text_into_tweets(daily_text: str) -> List[str]:
         """
@@ -87,10 +87,10 @@ class SageMakerClassificationService:
         `EOT` is a text str we have used here as it will help signify the end of a tweet:
             i.e. EOT = End of Tweet
 
-        @:param daily_text : str
+        :param: daily_text : str
             The full concatenated text blob for one day.
 
-        @:returns List[str]
+        :returns: List[str]
             A list of individual raw tweet strings.
         """
         if not daily_text or not daily_text.strip():
@@ -101,6 +101,69 @@ class SageMakerClassificationService:
 
         tweets = [part.strip() for part in parts if part and part.strip()]
         return tweets
+
+
+    @staticmethod
+    def validate_predictions(predictions: List[str]) -> List[str]:
+        """
+        Validates and normalises the predictions returned from SageMaker.
+
+        Allowed labels for this MVP:
+        - delayed
+        - cancelled
+
+        :param: predictions: List[str] -> Raw preds returned by the endpoint
+
+        :returns: [str] -> Lowercased and validated predictions.
+
+        :raises: SageMakerServiceError -> If predictions are invalid or contain unsupported labels.
+        """
+        if not isinstance(predictions, list):
+            raise SageMakerServiceError("Predictions must be returned as a list.")
+
+        normalised_predictions: List[str] = []
+
+        for prediction in predictions:
+            label = str(prediction).strip().lower()
+
+            if label not in {"delayed", "cancelled"}:
+                raise SageMakerServiceError(
+                    f"Unexpected prediction label received from SageMaker: {label}"
+                )
+
+            normalised_predictions.append(label)
+
+        return normalised_predictions
+
+
+    def prepare_tweets_for_inference(self, daily_text: str) -> List[str]:
+        """
+        Full preprocessing flow for one DynamoDB daily text field.
+
+        Steps:
+        1. split the concatenated text into individual tweets
+        2. normalise each tweet using the parser normalisation function
+        3. remove empty strings after cleaning
+
+        :param: daily_text : str -> Raw concatenated tweet blob from DynamoDB.
+
+        :returns: List[str] -> Cleaned tweets ready for SageMaker inference.
+        """
+        raw_tweets = self.split_daily_text_into_tweets(daily_text)
+
+        cleaned_tweets = []
+        for tweet in raw_tweets:
+            cleaned = normalise_text(tweet)
+            if cleaned and cleaned.strip():
+                cleaned_tweets.append(cleaned.strip())
+
+        logger.info(
+            "Prepared %d tweets for inference after splitting and normalisation.",
+            len(cleaned_tweets),
+        )
+
+        return cleaned_tweets
+
 
 
 
