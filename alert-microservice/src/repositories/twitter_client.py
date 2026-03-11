@@ -14,7 +14,7 @@ BASE_URL = "https://api.twitterapi.io/twitter/tweet/advanced_search"
 
 # Search query focusing on T1 Sydney Trains account for specific disruption keywords.
 # Excludes retweets to minimize duplicate alert data. 
-QUERY = "from:T1SydneyTrains (delay OR disruption OR cancelled OR suspended OR delayed) -filter:retweets"
+QUERY = "from:T1SydneyTrains (delay OR disruption OR cancelled OR suspended OR delayed OR allow extra time) -filter:retweets"
 
 def search_tweets(api_key: str, cursor: str = "") -> dict:
     """
