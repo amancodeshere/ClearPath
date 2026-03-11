@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 from repositories.twitter_client import search_tweets
 
-TWITTER_FILE = "march_2026.json"
+TWEETS_FILE = "march_2026.json"
 
 def fetch_tweets() -> list:
     """
@@ -25,16 +25,17 @@ def fetch_tweets() -> list:
 
     DATA_FOLDER = "data"
     os.makedirs(DATA_FOLDER, exist_ok=True)
-    file_path = os.path.join(DATA_FOLDER, TWITTER_FILE)
+    file_path = os.path.join(DATA_FOLDER, TWEETS_FILE)
 
     all_tweets = []
     seen_tweet_ids = set() 
     cursor = None
     last_min_id = None
     page_count = 0
+    max_pages = 3
     
     with open(file_path, "a", encoding="utf-8") as f:
-        while True: 
+        while page_count < max_pages:
             # Call the API 
             result = search_tweets(cursor=cursor, last_min_id=last_min_id) 
 
@@ -46,12 +47,13 @@ def fetch_tweets() -> list:
             new_tweets = [tweet for tweet in tweets if tweet.get("id") not in seen_tweet_ids]
             # Add new tweet IDs to the set and tweets to the collection
 
+            all_tweets.extend(new_tweets)
+            seen_tweet_ids.update(t.get("id") for t in new_tweets) 
+            
+            for tweet in new_tweets:
+                f.write(json.dumps(tweet, ensure_ascii=False) + "\n")
             
             
-            # all_tweets.extend(new_tweets)
-            # seen_tweet_ids.update(t.get("id") for t in new_tweets) 
-            # f.write(json.dumps(tweet, ensure_ascii=False) + "\n")
-
             has_next_page = result.get("has_next_page", False)
             next_cursor  = result.get("next_cursor")
 
@@ -82,11 +84,3 @@ if __name__ == "__main__":
     tweets = fetch_tweets()
 
     print(f"Fetched {len(tweets)} tweets")
-
-    DATA_FOLDER = "data"
-    os.makedirs(DATA_FOLDER, exist_ok=True)
-
-    file_path = os.path.join(DATA_FOLDER, TWITTER_FILE)
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(tweets, f, indent=2, ensure_ascii=False)
-    print(f"Saved tweets to {file_path}")
