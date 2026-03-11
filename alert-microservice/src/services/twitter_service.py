@@ -22,47 +22,57 @@ def fetch_tweets() -> list:
     Returns:
         list: A combined list of tweet objects from all fetched pages.
     """
+
+    DATA_FOLDER = "data"
+    os.makedirs(DATA_FOLDER, exist_ok=True)
+    file_path = os.path.join(DATA_FOLDER, TWITTER_FILE)
+
     all_tweets = []
     seen_tweet_ids = set() 
     cursor = None
     last_min_id = None
     page_count = 0
     
-    while True: 
-        # Call the API 
-        result = search_tweets(cursor=cursor, last_min_id=last_min_id) 
+    with open(file_path, "a", encoding="utf-8") as f:
+        while True: 
+            # Call the API 
+            result = search_tweets(cursor=cursor, last_min_id=last_min_id) 
 
-        tweets = result.get("tweets", [])
+            tweets = result.get("tweets", [])
 
-        if not tweets:  # No more tweets to process
-            break
+            if not tweets:  # No more tweets to process
+                break
 
-        new_tweets = [tweet for tweet in tweets if tweet.get("id") not in seen_tweet_ids]
-        # Add new tweet IDs to the set and tweets to the collection
-        all_tweets.extend(new_tweets)
-        seen_tweet_ids.update(t.get("id") for t in new_tweets) 
+            new_tweets = [tweet for tweet in tweets if tweet.get("id") not in seen_tweet_ids]
+            # Add new tweet IDs to the set and tweets to the collection
 
-        has_next_page = result.get("has_next_page", False)
-        next_cursor  = result.get("next_cursor")
+            
+            
+            # all_tweets.extend(new_tweets)
+            # seen_tweet_ids.update(t.get("id") for t in new_tweets) 
+            # f.write(json.dumps(tweet, ensure_ascii=False) + "\n")
 
-        if next_cursor:
-            cursor = next_cursor
-            last_min_id = None  # Clear max_id when using cursor
-        elif has_next_page and not next_cursor:
-            # Fall back to max_id pagination if cursor not available
-            last_min_id = tweets[-1].get("id")
-            cursor = None
-        else:
-            break  # No more pagination options
+            has_next_page = result.get("has_next_page", False)
+            next_cursor  = result.get("next_cursor")
 
-        page_count += 1
-        print(f"Fetched page {page_count}, total unique tweets: {len(all_tweets)}, new tweets: {len(new_tweets)}")
+            if next_cursor:
+                cursor = next_cursor
+                last_min_id = None  # Clear max_id when using cursor
+            elif has_next_page and not next_cursor:
+                # Fall back to max_id pagination if cursor not available
+                last_min_id = tweets[-1].get("id")
+                cursor = None
+            else:
+                break  # No more pagination options
 
-        if not new_tweets and not has_next_page:
-            print("No new tweets - stopping pagination to save credits")
-            break
-        
-        time.sleep(5) 
+            page_count += 1
+            print(f"Fetched page {page_count}, total unique tweets: {len(all_tweets)}, new tweets: {len(new_tweets)}")
+
+            if not new_tweets and not has_next_page:
+                print("No new tweets - stopping pagination to save credits")
+                break
+            
+            time.sleep(5) 
 
     return all_tweets
 
