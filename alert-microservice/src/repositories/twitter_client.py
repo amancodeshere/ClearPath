@@ -6,22 +6,26 @@ Credits:
     Initial implementation adapted from the TwitterAPI.io Advanced Search 
     documentation: https://twitterapi.io/blog/scrape-twitter-history-tweet
 """
-
+import os
 import requests
+from dotenv import load_dotenv
 
+load_dotenv()
+
+API_KEY = os.getenv("TWITTER_API_KEY")
 # The endpoint for advanced search provided by the third-party Twitter API wrapper.
 BASE_URL = "https://api.twitterapi.io/twitter/tweet/advanced_search"
 
 # Search query focusing on T1 Sydney Trains account for specific disruption keywords.
 # Excludes retweets to minimize duplicate alert data. 
-QUERY = "from:T1SydneyTrains (delay OR disruption OR cancelled OR suspended OR delayed OR allow extra time) -filter:retweets"
+QUERY = "(from:T1SydneyTrains) (delay OR disruption OR cancelled OR suspended OR delayed OR allow extra time) until:2026-03-11 since:2026-03-01"
 
-def search_tweets(api_key: str, cursor: str = "") -> dict:
+def search_tweets(cursor: str = None, last_min_id: str = None) -> dict:
     """
     Fetches the latest tweets matching the transit disruption query.
 
     Args:
-        api_key: The x-api-key required for authenticating with the Twitter API provider.
+        last_min_id: the ID of the last tweet returned by cursor to allow retrival of historic data beyond the twitter api limits 
         cursor: A pagination token used to retrieve the next page of search results.
 
     Returns:
@@ -31,9 +35,19 @@ def search_tweets(api_key: str, cursor: str = "") -> dict:
         requests.exceptions.HTTPError: If the API request fails (e.g., 401 Unauthorized).
     """
 
-    headers = {"x-api-key": api_key}
-    params = {"query": QUERY, "queryType": "Latest", "cursor": cursor}
-    
+    headers = {"x-api-key": API_KEY}
+    #use max_id to retrive older tweet beyond pagination 
+    params = {
+        "query": QUERY,
+        "queryType": "Latest"
+    }
+
+    if cursor:
+        params["cursor"] = cursor
+    elif last_min_id:
+        params["query"] = f"{QUERY} max_id:{last_min_id}"
+        
+
     # Perform the GET request to the advanced search endpoint
     response = requests.get(BASE_URL, headers=headers, params=params)
 
