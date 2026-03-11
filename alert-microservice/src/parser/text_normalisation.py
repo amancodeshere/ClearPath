@@ -54,7 +54,7 @@ def normalise_whitespace(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def normalize_text(text: str) -> str:
+def normalise_text(text: str) -> str:
     """
     This function applies all cleaning steps in sequence
     to produce a clean string suitable for model inference.
