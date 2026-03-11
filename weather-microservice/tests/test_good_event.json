@@ -1,0 +1,16 @@
+{
+  "Records": [
+    {
+      "eventSource": "aws:s3",
+      "eventName": "ObjectCreated:Put",
+      "s3": {
+        "bucket": {
+          "name": "clearpath-weather-data"
+        },
+        "object": {
+          "key": "weather_collected/3999-12-12.json"
+        }
+      }
+    }
+  ]
+}
