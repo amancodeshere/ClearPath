@@ -1,7 +1,8 @@
 from src.dependencies.s3_client import s3_client, S3_BUCKET_NAME
 from src.repositories.s3_repo import read_file
-from src.repositories.db_repo import get_record
+from src.repositories.db_repo import put_record
 import urllib.parse
+from decimal import Decimal
 
 def temperature_classification(tempMin: int, tempMax: int, amTemp: int, pmTemp: int):
     avgTemp = (tempMin + tempMax + amTemp + pmTemp)/4
@@ -78,11 +79,37 @@ def process_collected_s3_object(key: str, eTag: str):
     pmTemp = content['events'][0]['event_attributes']['3pm']['temp']
     pmHumidity = content['events'][0]['event_attributes']['3pm']['humidity']
 
-    weather_severity = []
-    weather_severity.append(temperature_classification(tempMin, tempMax, amTemp, pmTemp))
-    weather_severity.append(rainfall_classification(rainfall))
-    weather_severity.append(sunshine_classification(sunshineHours))
-    weather_severity.append(wind_classification(windGustSpeed))
-    weather_severity.append(humidity_classification(amHumidity, pmHumidity))
+    print(type(tempMax))
+
+    temp_severity = temperature_classification(tempMin, tempMax, amTemp, pmTemp)
+    rain_severity = rainfall_classification(rainfall)
+    sunshine_severity = sunshine_classification(sunshineHours)
+    wind_severity = wind_classification(windGustSpeed)
+    humidity_severity = humidity_classification(amHumidity, pmHumidity)
     
+    Item = {
+        'Date': date,
+        'tempMin': Decimal(str(tempMin)),
+        'tempMax': Decimal(str(tempMax)),
+        'rainfall': Decimal(str(rainfall)),
+        'sunshineHours': Decimal(str(sunshineHours)),
+        'windGustSpeed': Decimal(str(windGustSpeed)),
+        '9am': {
+            'temp': Decimal(str(amTemp)),
+            'humidity': Decimal(str(amHumidity))
+        },
+        '3pm': {
+            'temp': Decimal(str(pmTemp)),
+            'humidity': Decimal(str(pmHumidity))
+        },
+        'Weather_Severity': {
+            'Temp_Severity': str(temp_severity), 
+            'Rain_Severity': str(rain_severity),
+            'Sun_Severity': str(sunshine_severity),
+            'Wind_Severity': str(wind_severity),
+            'Humidity_Severity': str(humidity_severity)
+            }
+    }
+
+    put_record(Item)
     print(date)
