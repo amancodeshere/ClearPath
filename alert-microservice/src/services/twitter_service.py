@@ -10,10 +10,10 @@ import time
 from datetime import datetime, timedelta
 from repositories.twitter_client import search_tweets_by_query, BASE_QUERY
 
-TWEETS_FILE = "tweets_nov_dec_2025.json"
+TWEETS_FILE = "tweets_jan_feb_2025.json"
 # Date range to fetch
-START_DATE = datetime.strptime("2025-11-01", "%Y-%m-%d")
-END_DATE = datetime.strptime("2025-12-31", "%Y-%m-%d")
+START_DATE = datetime.strptime("2025-01-01", "%Y-%m-%d")
+END_DATE = datetime.strptime("2025-02-28", "%Y-%m-%d")
 
 
 def generate_weekly_queries(start_date: datetime, end_date: datetime):
