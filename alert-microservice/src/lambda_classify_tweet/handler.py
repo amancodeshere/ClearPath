@@ -174,3 +174,142 @@ def update_item_classification(
 
     return response.get("Attributes", {})
 
+def lambda_handler(event: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Lambda entry point for classifying a single day's concatenated tweets.
+
+    Processing flow:
+        1. Extract the date from the event
+        2. Read the corresponding row from DynamoDB
+        3. Get the concatenated tweet text
+        4. Split tweets on EOT and normalise them
+        5. Invoke the SageMaker endpoint on the individual tweets
+        6. Aggregate predictions into one final daily status
+        7. Update the DynamoDB row with the result
+
+    Final status aggregation rule:
+        - if any prediction is 'cancelled' -> status = 'CANCELLED'
+        - else if any prediction is 'delayed' -> status = 'DELAYED'
+    """
+    logger.info("Received event: %s", json.dumps(event))
+
+    date_value = extract_date_from_event(event)
+    if not date_value:
+        return build_response(
+            400,
+            {
+                "message": "Missing required parameter: date",
+                "expected_format": {"date": "YYYY-MM-DD"},
+            },
+        )
+
+    try:
+        item = get_item_by_date(date_value)
+    except DynamoDBServiceError as exc:
+        return build_response(
+            500,
+            {
+                "message": "Failed to retrieve record from DynamoDB.",
+                "error": str(exc),
+            },
+        )
+
+    if not item:
+        return build_response(
+            404,
+            {
+                "message": f"No record found for date {date_value}.",
+            },
+        )
+
+    text_blob = item.get("text", "")
+    account_name = item.get("account_name", "")
+
+    if not text_blob or not str(text_blob).strip():
+        return build_response(
+            400,
+            {
+                "message": f"Record for date {date_value} has no valid text content.",
+                "date": date_value,
+            },
+        )
+
+    try:
+        classifier = SageMakerClassificationService()
+        classification_result = classifier.classify_daily_text(str(text_blob))
+    except SageMakerServiceError as exc:
+        return build_response(
+            500,
+            {
+                "message": "SageMaker classification failed.",
+                "error": str(exc),
+                "date": date_value,
+            },
+        )
+    except Exception as exc:
+        logger.exception("Unexpected error during classification.")
+        return build_response(
+            500,
+            {
+                "message": "Unexpected classification error.",
+                "error": str(exc),
+                "date": date_value,
+            },
+        )
+
+    cleaned_tweets = classification_result.get("tweets", [])
+    predictions = classification_result.get("predictions", [])
+    final_status = classification_result.get("final_status")
+
+    logger.info(
+        "Classification complete for date=%s, tweets_processed=%d, final_status=%s",
+        date_value,
+        len(cleaned_tweets),
+        final_status,
+    )
+
+    if not final_status:
+        return build_response(
+            200,
+            {
+                "message": "No valid final classification could be produced.",
+                "date": date_value,
+                "account_name": account_name,
+                "tweets_processed": len(cleaned_tweets),
+                "predictions": predictions,
+                "final_status": None,
+            },
+        )
+
+    try:
+        updated_item = update_item_classification(
+            date_value=date_value,
+            final_status=final_status,
+            predictions=predictions,
+            tweets_processed=len(cleaned_tweets),
+        )
+    except DynamoDBServiceError as exc:
+        return build_response(
+            500,
+            {
+                "message": "Classification succeeded, but DynamoDB update failed.",
+                "error": str(exc),
+                "date": date_value,
+                "predictions": predictions,
+                "final_status": final_status,
+            },
+        )
+
+    return build_response(
+        200,
+        {
+            "message": "Classification completed successfully.",
+            "date": date_value,
+            "account_name": account_name,
+            "tweets_processed": len(cleaned_tweets),
+            "predictions": predictions,
+            "final_status": final_status.upper(),
+            "updated_item": updated_item,
+        },
+    )
+
