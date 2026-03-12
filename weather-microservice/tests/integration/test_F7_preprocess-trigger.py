@@ -14,6 +14,13 @@ def bad_test():
 
     print(collected_lambda_handler(event, None))
 
+def eTag_test():
+    with open("tests/test_eTag_event.json", "r") as f:
+        event = json.load(f)
+
+    print(collected_lambda_handler(event, None))
+
 if __name__ == "__main__":
     good_test()
     bad_test()
+    eTag_test()

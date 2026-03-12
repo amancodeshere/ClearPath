@@ -2,14 +2,14 @@
   "Records": [
     {
       "eventSource": "aws:s3",
-      "eventName": "ObjectRestore:Post",
+      "eventName": "ObjectCreated:Put",
       "s3": {
         "bucket": {
           "name": "clearpath-weather-data"
         },
         "object": {
-          "key": "weather_collected/3999-12-12.json",
-          "eTag": "ckfajs;kf"
+          "key": "weather_collected/2011-12-12.json",
+          "eTag": "fifiaodi"
         }
       }
     }

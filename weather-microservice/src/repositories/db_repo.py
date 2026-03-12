@@ -6,7 +6,6 @@ def get_record(date: str) -> dict | None:
     response = weather_table.get_item(Key={"Date": date})
     return response.get("Item")
 
-
 def put_record(record: dict) -> None:
     weather_table.put_item(Item=record)
 

@@ -8,7 +8,8 @@
           "name": "clearpath-weather-data"
         },
         "object": {
-          "key": "weather_collected/3999-12-12.json"
+          "key": "weather_collected/3999-12-12.json",
+          "eTag": "fiojdidap"
         }
       }
     }

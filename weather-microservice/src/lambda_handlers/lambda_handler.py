@@ -1,24 +1,37 @@
-import boto3
-from src.dependencies.s3_client import s3_client
 from src.repositories.db_repo import get_record
 from src.services.weather_attributes import process_collected_s3_object
 from pathlib import Path
+from datetime import datetime
 
 def collected_lambda_handler(event, context):
 
     for record in event.get('Records', []):
 
         event_type = str(record['eventName'])
-        if not event_type == "ObjectCreated:Put":
+        if not event_type.startswith("ObjectCreated:"):
+            continue
+        
+        try: 
+            key = str(record['s3']['object']['key'])
+        except KeyError:
+            print("Error in key, skipping object")
             continue
 
-        key = str(record['s3']['object']['key'])
         if not key.startswith('weather_collected/'):
             continue
 
-        rec_path = Path(key)
-        date = rec_path.stem
-        if get_record(date):
+        date = Path(key).stem
+
+        try:
+            bool(datetime.strptime(date, '%Y-%m-%d'))
+        except:
+            print("Invalid date key format")
             continue
 
-        process_collected_s3_object(key)
+        if get_record(date) is None:
+            process_collected_s3_object(key)
+            continue
+        
+        eTag = str(record['s3']['object']['eTag'])
+        if eTag != get_record(date)['eTag']:
+            process_collected_s3_object(key)
