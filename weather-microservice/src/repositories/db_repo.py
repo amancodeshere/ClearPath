@@ -1,9 +1,11 @@
 from src.dependencies.db_client import weather_table
 
+
 def get_record(date: str) -> dict | None:
 
     response = weather_table.get_item(Key={"Date": date})
     return response.get("Item")
+
 
 def put_record(record: dict) -> None:
     weather_table.put_item(Item=record)
@@ -20,7 +22,7 @@ def update_record(date: str, updates: dict) -> None:
         Key={"date": date},
         UpdateExpression=update_expression,
         ExpressionAttributeNames=expression_names,
-        ExpressionAttributeValues=expression_values
+        ExpressionAttributeValues=expression_values,
     )
 
 
