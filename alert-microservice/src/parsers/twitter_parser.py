@@ -7,11 +7,29 @@ from datetime import datetime
 TWEETS_FILE = os.path.join("data", "merged_tweets.json")
 
 def create_dict_from_json (file_path: str) -> dict: 
+    """
+    Load tweets from JSON file and return as dictionary.
+    
+    Args:
+        file_path (str): Path to the JSON file containing tweets
+        
+    Returns:
+        dict: Dictionary/list of tweet objects from the JSON file
+    """
     with open(file_path, 'r') as f:
         tweets = json.load(f)  
     return tweets
 
 def format_date(created_at: str):
+    """
+    Parse Twitter date format and convert to YYYY-MM-DD.
+    
+    Args:
+        created_at (str): Date string in Twitter format "Fri Nov 07 22:02:37 +0000 2025"
+        
+    Returns:
+        str: Formatted date as YYYY-MM-DD, or 'Invalid Date' if parsing fails
+    """
     try:
         date_obj = datetime.strptime(created_at, '%a %b %d %H:%M:%S +0000 %Y')
         date_formatted = date_obj.strftime('%Y-%m-%d')
@@ -22,9 +40,16 @@ def format_date(created_at: str):
 
 def extract_metadata (tweets: dict): 
     """
-    args - takes the converted dict of tweets 
-    returns - returns dic of 
-    text, createdAt, author.name 
+    Extract only essential metadata from tweets.
+    
+    Retains only: account_name, date (YYYY-MM-DD), text
+    Removes all other metadata (likes, retweets, IDs, etc.)
+    
+    Args:
+        tweets (dict): Dictionary of tweet objects from JSON
+        
+    Returns:
+        list: List of dictionaries with account_name, date, and text fields
     """
 
     extracted_tweets = []
