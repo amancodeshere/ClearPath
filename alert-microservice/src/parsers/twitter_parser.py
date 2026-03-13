@@ -2,6 +2,7 @@
 import json
 import os
 from datetime import datetime
+from typing import Dict, List
 
 TWEETS_FILE = os.path.join("data", "merged_tweets.json")
 
@@ -69,6 +70,29 @@ def extract_metadata(tweets: dict):
     return extracted_tweets
 
 
+def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
+    """for tweets on the same day, make into one master string (with EOT \n
+    between them)"""
+    collated = {}
+
+    for tweet in cleaned_tweets:
+        # Create unique key: (account_name, date)
+        key = (tweet["account_name"], tweet["date"])
+
+        if key not in collated:
+            # First tweet for this account on this date
+            collated[key] = {
+                "account_name": tweet["account_name"],
+                "date": tweet["date"],
+                "master_text": tweet["text"],
+            }
+        else:
+            # Another tweet for same account on same date - append it
+            collated[key]["master_text"] += "EOT\n" + tweet["text"]
+
+    return list(collated.values())
+
+
 def save_tweets_to_file(tweets: list, output_file: str) -> None:
     """Save tweets to JSON file"""
     with open(output_file, "w") as f:
@@ -77,8 +101,9 @@ def save_tweets_to_file(tweets: list, output_file: str) -> None:
 
 
 if __name__ == "__main__":
-
     tweets = create_dict_from_json(TWEETS_FILE)
     extracted = extract_metadata(tweets)
 
-    save_tweets_to_file(extracted, "data/extracted_tweets.json")
+    collated = collate_tweets(extracted)
+    # save_tweets_to_file(extracted, "data/extracted_tweets.json")
+    save_tweets_to_file(collated, "data/processed_tweets.json")
