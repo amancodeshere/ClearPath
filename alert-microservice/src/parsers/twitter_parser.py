@@ -1,11 +1,11 @@
 # parsers/twitter_parser.py
-import json
-import os
 from datetime import datetime
 from typing import Dict, List
+
 from utils.json_helpers import create_dict_from_json, save_tweets_to_file
 
 TWEETS_FILE = "merged_tweets.json"
+
 
 def format_date(created_at: str):
     """
@@ -76,6 +76,7 @@ def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
             collated[key]["master_text"] += "EOT\n" + tweet["text"]
 
     return list(collated.values())
+
 
 if __name__ == "__main__":
     tweets = create_dict_from_json(TWEETS_FILE)

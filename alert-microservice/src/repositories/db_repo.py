@@ -1,5 +1,6 @@
 from src.dependencies.db_client import alert_table
 
+
 def get_record(date: str) -> dict | None:
 
     response = alert_table.get_item(Key={"Date": date})

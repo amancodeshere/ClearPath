@@ -1,7 +1,6 @@
 import json
 import os
-from datetime import datetime
-from typing import Dict, List
+
 
 def create_dict_from_json(filename: str) -> dict:
     """
@@ -17,7 +16,7 @@ def create_dict_from_json(filename: str) -> dict:
     utils_dir = os.path.dirname(current_file)
     src_dir = os.path.dirname(utils_dir)
     file_path = os.path.join(src_dir, "data", filename)
-    
+
     with open(file_path, "r") as f:
         tweets = json.load(f)
     return tweets

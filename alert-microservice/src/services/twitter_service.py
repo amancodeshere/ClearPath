@@ -9,8 +9,8 @@ import os
 import time
 from datetime import datetime, timedelta
 
-from repositories.twitter_client import BASE_QUERY, search_tweets_by_query
 from dependencies.db_client import alert_table
+from repositories.twitter_client import BASE_QUERY, search_tweets_by_query
 from utils.json_helpers import create_dict_from_json
 
 TWEETS_FILE = "tweets_jan_feb_2025.json"
@@ -19,7 +19,8 @@ START_DATE = datetime.strptime("2025-01-01", "%Y-%m-%d")
 END_DATE = datetime.strptime("2025-02-28", "%Y-%m-%d")
 
 # SPRINT 1: CALL STATIC FILE
-CLEANED_TWEET_FILE= "processed_tweets.json" 
+CLEANED_TWEET_FILE = "processed_tweets.json"
+
 
 def generate_weekly_queries(start_date: datetime, end_date: datetime):
     """
@@ -41,7 +42,6 @@ def generate_weekly_queries(start_date: datetime, end_date: datetime):
 
         queries.append(q)
         current = next_week
-
     return queries
 
 
@@ -92,7 +92,9 @@ def fetch_tweets() -> list:
 
     return unique_tweets
 
-def add_tweets_to_dynamoDB(parsed_tweets: str) -> None: 
+
+def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
+
     data = create_dict_from_json(parsed_tweets)
 
     for record in data:
@@ -100,9 +102,8 @@ def add_tweets_to_dynamoDB(parsed_tweets: str) -> None:
             "Date": record["date"],
             "account_name": record["account_name"],
             "text": record["master_text"],
-            "status": None
+            "status": None,
         }
-        
         alert_table.put_item(Item=item)
 
 
