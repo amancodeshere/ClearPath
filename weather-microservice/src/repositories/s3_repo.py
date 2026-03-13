@@ -1,5 +1,7 @@
 import json
-from src.dependencies.s3_client import s3_client, S3_BUCKET_NAME
+
+from src.dependencies.s3_client import S3_BUCKET_NAME, s3_client
+
 
 def read_file(s3_key: str) -> dict:
     response = s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=s3_key)
@@ -12,6 +14,6 @@ def write_file(s3_key: str, data: dict) -> str:
         Bucket=S3_BUCKET_NAME,
         Key=s3_key,
         Body=json.dumps(data, indent=2),
-        ContentType="application/json"
+        ContentType="application/json",
     )
     return f"s3://{S3_BUCKET_NAME}/{s3_key}"
