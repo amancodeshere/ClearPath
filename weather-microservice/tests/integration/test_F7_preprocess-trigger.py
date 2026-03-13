@@ -1,7 +1,6 @@
-import json
 from src.lambda_handlers.lambda_handler import collected_lambda_handler
 from src.services.weather_attributes import return_weather_record
-
+import json
 
 def generate_event(event_name, bucket_name, key, eTag):
     return {
