@@ -3,24 +3,9 @@ import json
 import os
 from datetime import datetime
 from typing import Dict, List
+from utils.json_helpers import create_dict_from_json, save_tweets_to_file
 
-TWEETS_FILE = os.path.join("data", "merged_tweets.json")
-
-
-def create_dict_from_json(file_path: str) -> dict:
-    """
-    Load tweets from JSON file and return as dictionary.
-
-    Args:
-        file_path (str): Path to the JSON file containing tweets
-
-    Returns:
-        dict: Dictionary/list of tweet objects from the JSON file
-    """
-    with open(file_path, "r") as f:
-        tweets = json.load(f)
-    return tweets
-
+TWEETS_FILE = "merged_tweets.json"
 
 def format_date(created_at: str):
     """
@@ -91,14 +76,6 @@ def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
             collated[key]["master_text"] += "EOT\n" + tweet["text"]
 
     return list(collated.values())
-
-
-def save_tweets_to_file(tweets: list, output_file: str) -> None:
-    """Save tweets to JSON file"""
-    with open(output_file, "w") as f:
-        json.dump(tweets, f, indent=2)
-    print(f"Saved {len(tweets)} tweets to {output_file}")
-
 
 if __name__ == "__main__":
     tweets = create_dict_from_json(TWEETS_FILE)
