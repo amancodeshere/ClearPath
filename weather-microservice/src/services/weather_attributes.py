@@ -1,8 +1,9 @@
 from src.dependencies.s3_client import s3_client, S3_BUCKET_NAME
 from src.repositories.s3_repo import read_file
-from src.repositories.db_repo import put_record
-import urllib.parse
+from src.repositories.db_repo import put_record, get_record
+from src.utils.weather_utils import decimal_converter
 from decimal import Decimal
+import json
 
 def temperature_classification(tempMin: int, tempMax: int, amTemp: int, pmTemp: int):
     avgTemp = (tempMin + tempMax + amTemp + pmTemp)/4
@@ -103,3 +104,8 @@ def process_collected_s3_object(key: str, eTag: str):
     }
 
     put_record(Item)
+
+def return_weather_record(date: str):
+
+    rec = get_record(date)
+    return json.dumps(rec, default = decimal_converter, indent = 4)

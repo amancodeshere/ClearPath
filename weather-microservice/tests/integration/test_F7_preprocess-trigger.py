@@ -1,6 +1,7 @@
 import json
 import pytest
 from src.lambda_handlers.lambda_handler import collected_lambda_handler
+from src.services.weather_attributes import return_weather_record
 
 def generate_event(event_name, bucket_name, key, eTag):
     return {
@@ -26,7 +27,8 @@ def good_test():
     event = generate_event('ObjectCreated:Put', 'clearpath-weather-data', 
                             'weather_collected/3999-12-12.json', 'ckfajs;kf')
 
-    print(collected_lambda_handler(event, None))
+    collected_lambda_handler(event, None)
+    print(return_weather_record('3999-12-12'))
 
 def bad_test():
     with open("tests/test_bad_event.json", "r") as f:
