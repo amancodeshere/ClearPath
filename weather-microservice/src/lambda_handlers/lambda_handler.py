@@ -34,11 +34,15 @@ def collected_lambda_handler(event, context):
 
         eTag = str(record['s3']['object']['eTag'])
         if get_record(date) is None:
-            print('hi')
             process_collected_s3_object(key, eTag)
             continue
         
-        if eTag != get_record(date)['eTag']:
-            print('hi')
+        try: 
+            get_record(date)['eTag']
+        except:
+            print('DynamodDB record must have eTag attached')
             process_collected_s3_object(key, eTag)
+            continue
 
+        if eTag != get_record(date)['eTag']:
+            process_collected_s3_object(key, eTag)

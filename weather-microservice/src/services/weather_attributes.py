@@ -6,7 +6,7 @@ from decimal import Decimal
 
 def temperature_classification(tempMin: int, tempMax: int, amTemp: int, pmTemp: int):
     avgTemp = (tempMin + tempMax + amTemp + pmTemp)/4
-    print(avgTemp)
+
     if avgTemp < 15:
         return 'Cold'
     elif avgTemp < 22:
@@ -27,10 +27,7 @@ def rainfall_classification(rainfall: int):
         return 'Heavy rain'
 
 def sunshine_classification(sunshineHours: int):
-    print(sunshineHours)
     sun_ratio = sunshineHours / 24
-    print(sun_ratio)
-
     if sun_ratio < 0.4:
         return 'Cloudy'
     elif sun_ratio <= 0.8:
@@ -39,8 +36,6 @@ def sunshine_classification(sunshineHours: int):
         return 'Sunny'
 
 def wind_classification(windGustSpeed: int):
-    print(windGustSpeed)
-
     if windGustSpeed < 20:
         return 'Calm'
     elif windGustSpeed < 38:
@@ -51,10 +46,8 @@ def wind_classification(windGustSpeed: int):
         return 'Gale'
 
 def humidity_classification(amHumidity: int, pmHumidity: int):
-    print(amHumidity)
-
     avgHumidity = (amHumidity + pmHumidity) / 2
-    print(avgHumidity)
+
     if avgHumidity <= 30:
         return 'Low Humidity'
     elif avgHumidity <= 60:
@@ -65,7 +58,6 @@ def humidity_classification(amHumidity: int, pmHumidity: int):
         return 'Extreme Humidity'
 
 def process_collected_s3_object(key: str, eTag: str):
-    
     content = read_file(key)
 
     date = content['events'][0]['event_attributes']['date']
@@ -79,8 +71,6 @@ def process_collected_s3_object(key: str, eTag: str):
     pmTemp = content['events'][0]['event_attributes']['3pm']['temp']
     pmHumidity = content['events'][0]['event_attributes']['3pm']['humidity']
 
-    print(type(tempMax))
-
     temp_severity = temperature_classification(tempMin, tempMax, amTemp, pmTemp)
     rain_severity = rainfall_classification(rainfall)
     sunshine_severity = sunshine_classification(sunshineHours)
@@ -89,6 +79,7 @@ def process_collected_s3_object(key: str, eTag: str):
     
     Item = {
         'Date': date,
+        'eTag': eTag,
         'tempMin': Decimal(str(tempMin)),
         'tempMax': Decimal(str(tempMax)),
         'rainfall': Decimal(str(rainfall)),
@@ -112,4 +103,3 @@ def process_collected_s3_object(key: str, eTag: str):
     }
 
     put_record(Item)
-    print(date)
