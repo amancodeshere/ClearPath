@@ -1,8 +1,9 @@
+import json
+from decimal import Decimal
+
 from src.repositories.db_repo import get_record, put_record
 from src.repositories.s3_repo import read_file
 from src.utils.weather_utils import decimal_converter
-from decimal import Decimal
-import json
 
 
 def temperature_classification(
