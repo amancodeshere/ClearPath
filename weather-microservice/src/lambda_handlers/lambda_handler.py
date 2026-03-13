@@ -31,7 +31,8 @@ def collected_lambda_handler(event, context):
         try:
             bool(datetime.strptime(date, "%Y-%m-%d"))
         except Exception as e:
-            print("Invalid date key format")
+            e = "Invalid date key format"
+            print(e)
             continue
 
         eTag = str(record["s3"]["object"]["eTag"])
@@ -42,7 +43,8 @@ def collected_lambda_handler(event, context):
         try:
             get_record(date)["eTag"]
         except Exception as e:
-            print("DynamodDB record must have eTag attached")
+            e = "DynamodDB record must have eTag attached "
+            print(e)
             process_collected_s3_object(key, eTag)
             continue
 
