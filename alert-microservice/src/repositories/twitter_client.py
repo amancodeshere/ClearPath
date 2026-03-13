@@ -64,9 +64,9 @@ def search_tweets_by_query(query: str) -> list:
         while retry_count < max_retries:
             try:
                 # Perform the GET request to the advanced search endpoint
-                response = requests.get(BASE_URL,
-                                        headers=headers,
-                                        params=params)
+                response = requests.get(
+                    BASE_URL, headers=headers, params=params
+                )
                 response.raise_for_status()
                 data = response.json()
 
