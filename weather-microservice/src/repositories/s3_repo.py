@@ -1,5 +1,6 @@
 import json
-from src.dependencies.s3_client import s3_client, S3_BUCKET_NAME
+
+from src.dependencies.s3_client import S3_BUCKET_NAME, s3_client
 
 
 def read_file(s3_key: str) -> dict:

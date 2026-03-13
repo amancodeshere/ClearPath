@@ -1,12 +1,15 @@
-from src.dependencies.s3_client import s3_client, S3_BUCKET_NAME
-from src.repositories.s3_repo import read_file
-from src.repositories.db_repo import put_record, get_record
-from src.utils.weather_utils import decimal_converter
-from decimal import Decimal
 import json
+from decimal import Decimal
+
+from src.dependencies.s3_client import S3_BUCKET_NAME, s3_client
+from src.repositories.db_repo import get_record, put_record
+from src.repositories.s3_repo import read_file
+from src.utils.weather_utils import decimal_converter
 
 
-def temperature_classification(tempMin: int, tempMax: int, amTemp: int, pmTemp: int):
+def temperature_classification(
+    tempMin: int, tempMax: int, amTemp: int, pmTemp: int
+):
     avgTemp = (tempMin + tempMax + amTemp + pmTemp) / 4
 
     if avgTemp < 15:
@@ -78,7 +81,9 @@ def process_collected_s3_object(key: str, eTag: str):
     pmTemp = content["events"][0]["event_attributes"]["3pm"]["temp"]
     pmHumidity = content["events"][0]["event_attributes"]["3pm"]["humidity"]
 
-    temp_severity = temperature_classification(tempMin, tempMax, amTemp, pmTemp)
+    temp_severity = temperature_classification(
+        tempMin, tempMax, amTemp, pmTemp
+    )
     rain_severity = rainfall_classification(rainfall)
     sunshine_severity = sunshine_classification(sunshineHours)
     wind_severity = wind_classification(windGustSpeed)
@@ -92,8 +97,14 @@ def process_collected_s3_object(key: str, eTag: str):
         "rainfall": Decimal(str(rainfall)),
         "sunshineHours": Decimal(str(sunshineHours)),
         "windGustSpeed": Decimal(str(windGustSpeed)),
-        "9am": {"temp": Decimal(str(amTemp)), "humidity": Decimal(str(amHumidity))},
-        "3pm": {"temp": Decimal(str(pmTemp)), "humidity": Decimal(str(pmHumidity))},
+        "9am": {
+            "temp": Decimal(str(amTemp)),
+            "humidity": Decimal(str(amHumidity)),
+        },
+        "3pm": {
+            "temp": Decimal(str(pmTemp)),
+            "humidity": Decimal(str(pmHumidity)),
+        },
         "Weather_Severity": {
             "Temp_Severity": str(temp_severity),
             "Rain_Severity": str(rain_severity),

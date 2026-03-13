@@ -1,8 +1,9 @@
+from datetime import datetime
+from pathlib import Path
+
+from src.dependencies.s3_client import S3_BUCKET_NAME
 from src.repositories.db_repo import get_record
 from src.services.weather_attributes import process_collected_s3_object
-from src.dependencies.s3_client import S3_BUCKET_NAME
-from pathlib import Path
-from datetime import datetime
 
 
 def collected_lambda_handler(event, context):
