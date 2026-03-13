@@ -31,7 +31,9 @@ def generate_weekly_queries(start_date: datetime, end_date: datetime):
         if next_week > end_date:
             next_week = end_date
 
-        q = f"{BASE_QUERY} since:{current.strftime('%Y-%m-%d')} until:{next_week.strftime('%Y-%m-%d')}"
+        since_date = current.strftime('%Y-%m-%d')
+        until_date = next_week.strftime('%Y-%m-%d')
+        q = f"{BASE_QUERY} since:{since_date} until:{until_date}"
 
         queries.append(q)
         current = next_week
@@ -56,9 +58,10 @@ def fetch_tweets() -> list:
 
     all_tweets = []
 
-    print(
-        f"\nFetching tweets from {START_DATE.strftime('%Y-%m-%d')} to {END_DATE.strftime('%Y-%m-%d')}"
-    )
+    start = START_DATE.strftime('%Y-%m-%d')
+    end = END_DATE.strftime('%Y-%m-%d')
+    print(f"\nFetching tweets from {start} to {end}")
+
     queries = generate_weekly_queries(START_DATE, END_DATE)
     print(f"Generated {len(queries)} weekly queries\n")
 
