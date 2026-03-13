@@ -72,7 +72,7 @@ def extract_metadata(tweets: dict):
 
 def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
     """for tweets on the same day, make into one master string (with EOT \n
-      between them)"""
+    between them)"""
     collated = {}
 
     for tweet in cleaned_tweets:
