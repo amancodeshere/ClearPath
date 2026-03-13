@@ -9,7 +9,7 @@ Credits:
 import os
 import requests
 from dotenv import load_dotenv
-import time 
+import time
 
 load_dotenv()
 
@@ -18,7 +18,7 @@ API_KEY = os.getenv("TWITTER_API_KEY")
 BASE_URL = "https://api.twitterapi.io/twitter/tweet/advanced_search"
 
 # Search query focusing on T1 Sydney Trains account for specific disruption keywords.
-# Excludes retweets to minimize duplicate alert data. 
+# Excludes retweets to minimize duplicate alert data.
 
 # Base query (without dates)
 BASE_QUERY = "(from:T1SydneyTrains) (delay OR disruption OR cancelled OR suspended OR delayed OR allow extra time)"
@@ -29,7 +29,7 @@ def search_tweets_by_query(query: str) -> list:
     Fetches the latest tweets matching the transit disruption query.
 
     Args:
-        query: updated query with dates for each week 
+        query: updated query with dates for each week
 
     Returns:
         dict: The JSON response containing tweet data and pagination metadata.
@@ -44,12 +44,9 @@ def search_tweets_by_query(query: str) -> list:
     cursor = None
     max_retries = 3
 
-    while True: 
-    #use max_id to retrive older tweet beyond pagination 
-        params = {
-            "query": query,
-            "queryType": "Top"
-        }
+    while True:
+        # use max_id to retrive older tweet beyond pagination
+        params = {"query": query, "queryType": "Top"}
 
         if cursor:
             params["cursor"] = cursor
@@ -59,7 +56,9 @@ def search_tweets_by_query(query: str) -> list:
         while retry_count < max_retries:
             try:
                 # Perform the GET request to the advanced search endpoint
-                response = requests.get(BASE_URL, headers=headers, params=params)
+                response = requests.get(
+                    BASE_URL, headers=headers, params=params
+                )
                 response.raise_for_status()
                 data = response.json()
 
@@ -76,8 +75,10 @@ def search_tweets_by_query(query: str) -> list:
                         new_tweets.append(t)
                         all_tweets.append(t)
 
-                print(f"  API returned {len(tweets)} tweets, {len(new_tweets)} new, total: {len(all_tweets)}")
-                
+                print(
+                    f"  API returned {len(tweets)} tweets, {len(new_tweets)} new, total: {len(all_tweets)}"
+                )
+
                 if not has_next:
                     return all_tweets
 
@@ -87,11 +88,13 @@ def search_tweets_by_query(query: str) -> list:
                 retry_count += 1
                 print(f"  Error: {e}, retry {retry_count}/{max_retries}")
 
-                time.sleep(2 ** retry_count)
+                time.sleep(2**retry_count)
                 if retry_count == max_retries:
-                    print("  Max retries reached, returning collected tweets so far")
+                    print(
+                        "  Max retries reached, returning collected tweets so far"
+                    )
                     return all_tweets
-            
+
         if not has_next:
             break
 

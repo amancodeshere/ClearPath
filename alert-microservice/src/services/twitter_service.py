@@ -41,10 +41,10 @@ def generate_weekly_queries(start_date: datetime, end_date: datetime):
 def fetch_tweets() -> list:
     """
     Retrieves multiple pages of tweets to ensure a larger data sample.
-    
+
     Args:
         api_key: The authentication key for the Twitter API wrapper.
-        
+
     Returns:
         list: A combined list of tweet objects from all fetched pages.
     """
@@ -55,26 +55,28 @@ def fetch_tweets() -> list:
 
     all_tweets = []
 
-    print(f"\nFetching tweets from {START_DATE.strftime('%Y-%m-%d')} to {END_DATE.strftime('%Y-%m-%d')}")
+    print(
+        f"\nFetching tweets from {START_DATE.strftime('%Y-%m-%d')} to {END_DATE.strftime('%Y-%m-%d')}"
+    )
     queries = generate_weekly_queries(START_DATE, END_DATE)
     print(f"Generated {len(queries)} weekly queries\n")
 
     for i, q in enumerate(queries, 1):
-            # Extract dates from query for display
-            date_range = q.split("since:")[1].split(" until:")
-            print(f"[{i}/{len(queries)}] Week: {date_range[0]} to {date_range[1]}")
-            
-            # Fetch tweets for this week
-            week_tweets = search_tweets_by_query(q)
-            all_tweets.extend(week_tweets)
-            print(f"  Collected {len(week_tweets)} tweets\n")
-            
-            # Be polite to the API
-            time.sleep(1)
-    
+        # Extract dates from query for display
+        date_range = q.split("since:")[1].split(" until:")
+        print(f"[{i}/{len(queries)}] Week: {date_range[0]} to {date_range[1]}")
+
+        # Fetch tweets for this week
+        week_tweets = search_tweets_by_query(q)
+        all_tweets.extend(week_tweets)
+        print(f"  Collected {len(week_tweets)} tweets\n")
+
+        # Be polite to the API
+        time.sleep(1)
+
     unique_tweets = list({t["id"]: t for t in all_tweets}.values())
     print(f"Total unique tweets: {len(unique_tweets)}")
-    
+
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(unique_tweets, f, indent=2, ensure_ascii=False)
 
@@ -82,12 +84,10 @@ def fetch_tweets() -> list:
 
     return unique_tweets
 
+
 # TEST MAIN TO CHECK IF SERVICE RETURNS TWEETS CORRECTLY FOR PAGNIATION
 if __name__ == "__main__":
 
     tweets = fetch_tweets()
 
     print(f"Fetched {len(tweets)} tweets")
-
-
-    
