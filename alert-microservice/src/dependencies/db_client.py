@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
-DYNAMODB_TABLE_NAME = "clearpath-weather-data"
+DYNAMODB_TABLE_NAME = "clearpath-alert-data"
 
 # Initialise DynamoDB resource
 dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
