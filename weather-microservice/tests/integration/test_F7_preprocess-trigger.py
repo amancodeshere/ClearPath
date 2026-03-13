@@ -1,6 +1,4 @@
 import json
-
-import pytest
 from src.lambda_handlers.lambda_handler import collected_lambda_handler
 from src.services.weather_attributes import return_weather_record
 

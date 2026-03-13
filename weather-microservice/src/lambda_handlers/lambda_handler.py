@@ -30,7 +30,7 @@ def collected_lambda_handler(event, context):
         date = Path(key).stem
         try:
             bool(datetime.strptime(date, "%Y-%m-%d"))
-        except:
+        except Exception as e:
             print("Invalid date key format")
             continue
 
@@ -41,7 +41,7 @@ def collected_lambda_handler(event, context):
 
         try:
             get_record(date)["eTag"]
-        except:
+        except Exception as e:
             print("DynamodDB record must have eTag attached")
             process_collected_s3_object(key, eTag)
             continue
