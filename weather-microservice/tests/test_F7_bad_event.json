@@ -1,0 +1,17 @@
+{
+  "Records": [
+    {
+      "eventSource": "aws:s3",
+      "eventName": "ObjectRestore:Post",
+      "s3": {
+        "bucket": {
+          "name": "clearpath-weather-data"
+        },
+        "object": {
+          "key": "weather_collected/3999-12-12.json",
+          "eTag": "ckfajs;kf"
+        }
+      }
+    }
+  ]
+}
