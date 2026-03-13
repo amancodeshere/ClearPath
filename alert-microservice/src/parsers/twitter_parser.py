@@ -2,6 +2,7 @@
 import json
 import os
 from datetime import datetime
+from typing import Dict, List
 
 TWEETS_FILE = os.path.join("data", "merged_tweets.json")
 
@@ -68,8 +69,10 @@ def extract_metadata(tweets: dict):
 
     return extracted_tweets
 
+
 def collate_tweets(cleaned_tweets: List[Dict]) -> List[Dict]:
-    """for tweets on the same day, make into one master string (with EOT \n between them)"""
+    """for tweets on the same day, make into one master string (with EOT \n
+      between them)"""
     collated = {}
 
     for tweet in cleaned_tweets:
