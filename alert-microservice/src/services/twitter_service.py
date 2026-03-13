@@ -4,11 +4,12 @@ Service layer for orchestrating tweet retrieval from the Twitter client.
 Handles pagination logic and exports data to local storage for analysis.
 """
 
-import os
 import json
+import os
 import time
 from datetime import datetime, timedelta
-from repositories.twitter_client import search_tweets_by_query, BASE_QUERY
+
+from repositories.twitter_client import BASE_QUERY, search_tweets_by_query
 
 TWEETS_FILE = "tweets_jan_feb_2025.json"
 # Date range to fetch

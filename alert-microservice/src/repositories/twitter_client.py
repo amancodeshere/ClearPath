@@ -7,9 +7,10 @@ Credits:
     documentation: https://twitterapi.io/blog/scrape-twitter-history-tweet
 """
 import os
+import time
+
 import requests
 from dotenv import load_dotenv
-import time
 
 load_dotenv()
 
